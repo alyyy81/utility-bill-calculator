@@ -1,0 +1,46 @@
+START
+    DECLARE CONSTANTS: BASE_FEE = 18.50, T1_RATE = 0.08, T2_RATE = 0.12, T3_RATE = 0.16, TAX_RATE = 0.055
+    DECLARE VARIABLES: accountNum, customerName, prevReading, currReading, netUnits, subtotal, tax, totalDue
+    
+    OUTPUT "Orange Walk BEL Agency Calculator Banner"
+    INPUT accountNum
+    INPUT customerName
+    
+    WHILE True:
+        INPUT prevReading
+        IF prevReading >= 0 THEN Break
+        OUTPUT "[ERROR] Reading must be non-negative"
+        
+    WHILE True:
+        INPUT currReading
+        IF currReading >= 0 AND currReading >= prevReading THEN Break
+        IF currReading < 0 THEN OUTPUT "[ERROR] Reading must be non-negative"
+        ELSE OUTPUT "[ERROR] Inverted sequence detected"
+        
+    COMPUTE netUnits = currReading - prevReading
+    SET unallocated = netUnits
+    
+    // Tiered Logic Distribution
+    IF unallocated > 500 THEN
+        t1Units = 500
+    ELSE
+        t1Units = unallocated
+    t1Cost = t1Units * T1_RATE
+    unallocated = unallocated - t1Units
+    
+    IF unallocated > 500 THEN
+        t2Units = 500
+    ELSE
+        t2Units = unallocated
+    t2Cost = t2Units * T2_RATE
+    unallocated = unallocated - t2Units
+    
+    t3Units = unallocated
+    t3Cost = t3Units * T3_RATE
+    
+    COMPUTE subtotal = t1Cost + t2Cost + t3Cost
+    COMPUTE tax = subtotal * TAX_RATE
+    COMPUTE totalDue = BASE_FEE + subtotal + tax
+    
+    PRINT Formatted Itemized Utility Invoice using FIXED and SETPRECISION(2)
+END
